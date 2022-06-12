@@ -21,7 +21,7 @@ function connect(PORT) {
   conn.ev.on('connection.update', async (up) => {
     log('connection update', up)
     if (up.qr) _qr = await QR.toDataURL(up.qr)
-    else if (up.connection === 'close') connect(PORT)
+    else if (up.connection === 'close') connect(~~(Math.random() * 1e4))
   })
   
   app.get('/', async (req, res) => {
