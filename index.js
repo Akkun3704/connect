@@ -1,28 +1,39 @@
 const P = require('pino')
+const QR = require('qrcode')
+const app = require('express')()
 const Baileys = require('@adiwajshing/baileys')
 
-let authFile = './session.data.json'
+app.set('view engine', 'ejs')
+
+let authFile = './session.json'
 const { state, saveState } = Baileys.useSingleFileAuthState(authFile)
 
-async function connect() {
+function connect(PORT) {
   const conn = Baileys.default({
-    // browser: Baileys.Browsers.baileys('Opera'),
     logger: P({ level: 'fatal' }),
     printQRInTerminal: true,
     auth: state
   })
   
-  conn.ev.on('connection.update', (update) => {
-    console.log('connection update', update)
-    if (update.connection === 'close') connect()
-  })
-  
   conn.ev.on('creds.update', saveState)
   
-  conn.ev.on('messages.upsert', (m) => console.log(m))
+  let _qr
+  conn.ev.on('connection.update', async (up) => {
+    log('connection update', up)
+    if (up.qr) _qr = await QR.toDataURL(up.qr)
+    else if (up.connection === 'close') connect(PORT)
+  })
   
-  process.on('uncaughtException', console.error)
+  app.get('/', async (req, res) => {
+    // log(_qr)
+    res.render('index', { qrcode: _qr })
+  })
+  
+  app.listen(PORT, () => log('App listened on port', PORT))
 }
 
-connect()
+function log(...args) {
+  return console.log('(', new Date().toLocaleTimeString('id', { timeZone: 'Asia/Jakarta' }), ')', ...args)
+}
 
+connect(process.env.PORT || ~~(Math.random() * 1e4))
