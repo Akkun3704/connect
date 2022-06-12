@@ -1,7 +1,7 @@
 {
   "name": "example",
   "version": "1.0.0",
-  "description": "",
+  "description": "idk",
   "main": "index.js",
   "scripts": {
     "start": "node ."
@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "@adiwajshing/baileys": "*",
+    "ejs": "*",
+    "express": "*",
+    "qrcode": "*",
     "qrcode-terminal": "*"
   }
 }
